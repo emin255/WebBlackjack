@@ -7,6 +7,7 @@ const app = express();
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 
+const rootDir = path.join(__dirname, '..');
 console.log('Static klasör:', rootDir); // Debug için
 app.use(express.static(rootDir));
 
