@@ -2,7 +2,11 @@
 // WEBSOCKET BAĞLANTISI
 // ============================================================
 
-const socket = new WebSocket('ws://localhost:3000');
+const socket = new WebSocket(
+    window.location.hostname === 'localhost'
+        ? 'ws://localhost:3000'
+        : 'wss://webblackjack-production.up.railway.app'
+);
 
 let benimIndex = null;   // Bu tarayıcının oyuncu indexi
 let odaId = 'oda1';      // Şimdilik sabit, sonra dinamik yapabiliriz
