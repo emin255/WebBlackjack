@@ -7,8 +7,13 @@ const app = express();
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 
-// Client klasörünü serve et
-app.use(express.static(path.join(__dirname, '..')));
+console.log('Static klasör:', rootDir); // Debug için
+app.use(express.static(rootDir));
+
+// Ana sayfa için explicit route
+app.get('/', (req, res) => {
+    res.sendFile(path.join(rootDir, 'index.html'));
+});
 
 // ============================================================
 // OYUN ODASI YÖNETİMİ
