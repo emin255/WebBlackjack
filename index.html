@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blackjack</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div id="masa">
+
+        <!-- KRUPİYER -->
+        <div id="krupiyer-alani">
+            <div id="krupiyer-el"></div>
+            <div id="krupiyer-skor">Skor: ?</div>
+        </div>
+
+        <!-- 5 KOLTUK -->
+        <div id="koltuklar">
+            <div class="koltuk" id="koltuk-0" data-index="0">
+                <div class="oyuncu-el"></div>
+                <div class="oyuncu-bilgi">
+                    <span class="oyuncu-isim">Koltuk 1</span>
+                    <span class="oyuncu-skor">0</span>
+                    <span class="oyuncu-bahis">Bahis: 0</span>
+                    <span class="oyuncu-bakiye">Bakiye: 1000</span>
+                </div>
+                <div class="butonlar"></div>
+            </div>
+
+            <div class="koltuk" id="koltuk-1" data-index="1">
+                <div class="oyuncu-el"></div>
+                <div class="oyuncu-bilgi">
+                    <span class="oyuncu-isim">Koltuk 2</span>
+                    <span class="oyuncu-skor">0</span>
+                    <span class="oyuncu-bahis">Bahis: 0</span>
+                    <span class="oyuncu-bakiye">Bakiye: 1000</span>
+                </div>
+                <div class="butonlar"></div>
+            </div>
+
+            <div class="koltuk" id="koltuk-2" data-index="2">
+                <div class="oyuncu-el"></div>
+                <div class="oyuncu-bilgi">
+                    <span class="oyuncu-isim">Koltuk 3</span>
+                    <span class="oyuncu-skor">0</span>
+                    <span class="oyuncu-bahis">Bahis: 0</span>
+                    <span class="oyuncu-bakiye">Bakiye: 1000</span>
+                </div>
+                <div class="butonlar"></div>
+            </div>
+
+            <div class="koltuk" id="koltuk-3" data-index="3">
+                <div class="oyuncu-el"></div>
+                <div class="oyuncu-bilgi">
+                    <span class="oyuncu-isim">Koltuk 4</span>
+                    <span class="oyuncu-skor">0</span>
+                    <span class="oyuncu-bahis">Bahis: 0</span>
+                    <span class="oyuncu-bakiye">Bakiye: 1000</span>
+                </div>
+                <div class="butonlar"></div>
+            </div>
+
+            <div class="koltuk" id="koltuk-4" data-index="4">
+                <div class="oyuncu-el"></div>
+                <div class="oyuncu-bilgi">
+                    <span class="oyuncu-isim">Koltuk 5</span>
+                    <span class="oyuncu-skor">0</span>
+                    <span class="oyuncu-bahis">Bahis: 0</span>
+                    <span class="oyuncu-bakiye">Bakiye: 1000</span>
+                </div>
+                <div class="butonlar"></div>
+            </div>
+        </div>
+
+        <!-- BİLGİ & BAŞLAT -->
+        <div id="bilgi-alani">
+            <p id="bilgi-yazisi">Masaya oturmak için koltuklara tıklayın.</p>
+            <button id="baslat-btn">BAŞLAT</button>
+        </div>
+
+    </div>
+
+    <script src="game.js"></script>
+</body>
+</html>

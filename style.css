@@ -1,0 +1,241 @@
+/* GENEL SIFIRLAMA */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: #1a1a2e;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    font-family: Arial, sans-serif;
+    overflow: hidden;
+}
+
+#masa {
+    position: relative;
+    width: 1400px;
+    height: 800px;
+    background: radial-gradient(ellipse at center, #2d6a2d 0%, #1a3d1a 70%, #0f2a0f 100%);
+    border-radius: 50%;
+    border: 12px solid #8B6914;
+    box-shadow: 0 0 60px rgba(0,0,0,0.8), inset 0 0 40px rgba(0,0,0,0.3);
+}
+
+/* KRUPİYER ALANI */
+#krupiyer-alani {
+    position: absolute;
+    top: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+}
+
+#krupiyer-el {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    min-height: 90px;
+}
+
+#krupiyer-skor {
+    color: white;
+    font-size: 14px;
+    margin-top: 6px;
+    background: rgba(0,0,0,0.4);
+    padding: 2px 10px;
+    border-radius: 10px;
+}
+
+/* KOLTUKLAR KAPSAYICI */
+#koltuklar {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+}
+
+/* TEK KOLTUK */
+.koltuk {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;   
+    cursor: pointer;
+    /* Her koltuk kendi açısına göre döndürülecek (JS ile) */
+}
+
+/* 5 KOLTUĞUN POZİSYONU VE AÇISI */
+#koltuk-0 { left: 100px;  bottom: 150px; transform: rotate(54deg);  }
+#koltuk-1 { left: 340px;  bottom: 50px;  transform: rotate(27deg);  }
+#koltuk-2 { left: 50%;    bottom: 20px;  transform: translateX(-50%) rotate(0deg); }
+#koltuk-3 { right: 340px; bottom: 50px;  transform: rotate(-27deg); }
+#koltuk-4 { right: 100px; bottom: 150px; transform: rotate(-54deg); }
+
+/* KOLTUK ÜZERİNE GELINCE */
+.koltuk:hover .koltuk-daire {
+    background: #4a9e4a;
+}
+
+/* OTURMA DAİRESİ (+ işareti veya oyuncu göstergesi) */
+.koltuk-daire {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: #2a7a2a;
+    border: 3px solid #5aad5a;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 28px;
+    color: white;
+    transition: background 0.2s;
+}
+
+.koltuk.dolu .koltuk-daire {
+    background: #8B1a1a;
+    border-color: #cc4444;
+    font-size: 14px;
+}
+
+/* OYUNCU BİLGİ YAZILARI */
+.oyuncu-bilgi {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+}
+
+.oyuncu-bilgi span {
+    font-size: 11px;
+    color: white;
+    background: rgba(0,0,0,0.5);
+    padding: 1px 6px;
+    border-radius: 6px;
+    white-space: nowrap;
+}
+
+.oyuncu-isim  { color: #ddd !important; }
+.oyuncu-skor  { color: #fff !important; font-weight: bold; }
+.oyuncu-bahis { color: #ffd700 !important; }
+.oyuncu-bakiye{ color: #90ee90 !important; }
+
+/* KARTLAR */
+.oyuncu-el {
+    display: flex;
+    gap: -10px;
+    justify-content: center;
+    min-height: 70px;
+    margin-bottom: 4px;
+}
+
+.kart {
+    display: inline-block;
+    border-radius: 6px;
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.4);
+    margin-left: -15px;
+    position: relative;
+    transition: transform 0.2s ease;
+}
+
+.kart:first-child { margin-left: 0; }
+
+.kart.kupa, .kart.karo   { color: red;   }
+.kart.sinek, .kart.maça  { color: black; }
+
+.kart.kapali {
+    background: linear-gradient(135deg, #1a1aff 25%, #0000aa 25%,
+                #0000aa 50%, #1a1aff 50%, #1a1aff 75%, #0000aa 75%);
+    background-size: 10px 10px;
+    color: transparent;
+}
+
+/* BUTONLAR */
+.butonlar {
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 4px;
+}
+
+.butonlar button {
+    padding: 4px 10px;
+    font-size: 11px;
+    font-weight: bold;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.butonlar button:hover { opacity: 0.8; }
+
+.btn-hit    { background: #4CAF50; color: white; }
+.btn-stand  { background: #f44336; color: white; }
+.btn-double { background: #2196F3; color: white; }
+.btn-split  { background: #9E9E9E; color: white; }
+.btn-bahis  { background: #ff9800; color: white; }
+.btn-koy    { background: #4CAF50; color: white; }
+.btn-sifirla{ background: #2196F3; color: white; }
+
+/* BİLGİ ALANI & BAŞLAT BUTONU */
+#bilgi-alani {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    z-index: 50;
+    pointer-events: none;
+}
+
+#bilgi-yazisi {
+    color: white;
+    font-size: 14px;
+    background: rgba(0,0,0,0.6);
+    padding: 6px 20px;
+    border-radius: 10px;
+    white-space: nowrap;
+}
+
+#baslat-btn {
+    padding: 10px 35px;
+    background: #2196F3;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    display: none;
+    pointer-events: all;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+    transition: background 0.2s;
+    white-space: nowrap;
+}
+
+#baslat-btn:hover {
+    background: #1565C0;
+}
+
+/* SONUÇ YAZISI */
+.sonuc-yazisi {
+    font-size: 13px;
+    font-weight: bold;
+    padding: 2px 8px;
+    border-radius: 6px;
+    margin-top: 2px;
+}
+.sonuc-kazandi { background: gold;   color: black; }
+.sonuc-kaybetti{ background: #c62828; color: white; }
+.sonuc-berabere{ background: gray;   color: white; }
