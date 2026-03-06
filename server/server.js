@@ -8,7 +8,7 @@ const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 
 // Client klasörünü serve et
-app.use(express.static(path.join(__dirname, '../client')));
+app.use(express.static(path.join(__dirname, '..')));
 
 // ============================================================
 // OYUN ODASI YÖNETİMİ
@@ -476,7 +476,11 @@ function odayaYayinla(oda, veri) {
     });
 }
 
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
+
+node_modules/
+.env
+
 server.listen(PORT, () => {
     console.log(`Sunucu çalışıyor: http://localhost:${PORT}`);
 });
