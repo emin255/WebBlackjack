@@ -82,21 +82,6 @@ body {
     background: #4a9e4a;
 }
 
-/* OTURMA DAİRESİ (+ işareti veya oyuncu göstergesi) */
-.koltuk-daire {
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    background: #2a7a2a;
-    border: 3px solid #5aad5a;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 28px;
-    color: white;
-    transition: background 0.2s;
-}
-
 .koltuk.dolu .koltuk-daire {
     background: #8B1a1a;
     border-color: #cc4444;
@@ -127,20 +112,23 @@ body {
 
 /* KARTLAR */
 .oyuncu-el {
+    position: relative;
+    min-height: 110px;
     display: flex;
-    gap: -10px;
     justify-content: center;
-    min-height: 70px;
-    margin-bottom: 4px;
+    margin-bottom: 8px;
 }
 
 .kart {
-    display: inline-block;
     border-radius: 6px;
-    box-shadow: 2px 2px 5px rgba(0,0,0,0.4);
-    margin-left: -15px;
-    position: relative;
-    transition: transform 0.2s ease;
+    position: absolute;
+    cursor: default;
+}
+
+.kart:hover {
+    transform: rotate(0deg) translateY(-8px) !important;
+    z-index: 99 !important;
+    transition: all 0.2s ease;
 }
 
 .kart:first-child { margin-left: 0; }

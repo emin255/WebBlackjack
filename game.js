@@ -376,23 +376,42 @@ function koltukEkle() {
         // Kartları çiz
         const elDiv = koltukDiv.querySelector('.oyuncu-el');
         elDiv.innerHTML = '';
+        elDiv.style.cssText = `
+            position: relative;
+            height: 110px;
+            width: ${oyuncu.el.length * 22 + 84}px;
+            margin-bottom: 4px;
+        `;
 
         if (oyuncu.isActive && oyuncu.el.length > 0) {
             if (oyuncu.isSplitted) {
-                // Split varsa iki el yan yana
+                // Split: iki ayrı el
                 const el1Div = document.createElement('div');
-                el1Div.style.display = 'flex';
-                el1Div.style.gap = '2px';
-                oyuncu.el.forEach(k => el1Div.appendChild(kartEleman(k)));
+                el1Div.style.cssText = `
+                    position: relative;
+                    height: 110px;
+                    width: ${oyuncu.el.length * 22 + 84}px;
+                    display: inline-block;
+                `;
+                oyuncu.el.forEach((k, i) => el1Div.appendChild(kartEleman(k, i)));
 
                 const el2Div = document.createElement('div');
-                el2Div.style.cssText = 'display:flex; gap:2px; margin-left:10px; border-left:2px solid gold; padding-left:8px;';
-                oyuncu.splitEl.forEach(k => el2Div.appendChild(kartEleman(k)));
+                el2Div.style.cssText = `
+                    position: relative;
+                    height: 110px;
+                    width: ${oyuncu.splitEl.length * 22 + 84}px;
+                    display: inline-block;
+                    margin-left: 20px;
+                    border-left: 2px solid gold;
+                    padding-left: 10px;
+                `;
+                oyuncu.splitEl.forEach((k, i) => el2Div.appendChild(kartEleman(k, i)));
 
+                elDiv.style.width = 'auto';
                 elDiv.appendChild(el1Div);
                 elDiv.appendChild(el2Div);
             } else {
-                oyuncu.el.forEach(k => elDiv.appendChild(kartEleman(k)));
+                oyuncu.el.forEach((k, i) => elDiv.appendChild(kartEleman(k, i)));
             }
         }
 
@@ -424,7 +443,7 @@ function koltukEkle() {
 // KART HTML ELEMANI OLUŞTUR
 // ============================================================
 
-function kartEleman(kart) {
+function kartEleman(kart, index = 0) {
     const div = document.createElement('div');
     div.className = `kart ${kart.simge}`;
 
@@ -435,16 +454,11 @@ function kartEleman(kart) {
         'A':0, '2':1, '3':2, '4':3, '5':4, '6':5, '7':6,
         '8':7, '9':8, '10':9, 'J':10, 'Q':11, 'K':12
     };
-
     const satirMap = {
-        'kupa': 0,
-        'karo': 1,
-        'sinek': 2,
-        'maça': 3
+        'kupa': 0, 'karo': 1, 'sinek': 2, 'maça': 3
     };
 
     let sutun, satir;
-
     if (kart.kapali) {
         sutun = 13;
         satir = 3;
@@ -456,6 +470,11 @@ function kartEleman(kart) {
     const x = sutun * KART_GENISLIK;
     const y = satir * KART_YUKSEKLIK;
 
+    // Her karta hafif rastgele açı ver
+    const aciler = [-8, -4, -6, 3, 6, -2, 5, -7, 4, -3];
+    const aci = aciler[index % aciler.length];
+
+    // Üst üste binme için absolute pozisyon
     div.style.cssText = `
         width: ${KART_GENISLIK}px;
         height: ${KART_YUKSEKLIK}px;
@@ -463,9 +482,14 @@ function kartEleman(kart) {
         background-position: -${x}px -${y}px;
         background-repeat: no-repeat;
         border-radius: 6px;
-        margin-left: 5px;
-        box-shadow: 2px 2px 5px rgba(0,0,0,0.4);
-        flex-shrink: 0;
+        box-shadow: 2px 2px 5px rgba(0,0,0,0.5);
+        position: absolute;
+        left: ${index * 22}px;
+        top: ${Math.abs(aci) * 1.5}px;
+        transform: rotate(${aci}deg);
+        transform-origin: bottom center;
+        transition: transform 0.2s ease;
+        z-index: ${index};
     `;
 
     return div;
@@ -478,17 +502,20 @@ function kartEleman(kart) {
 function krupiyerGuncelle() {
     const elDiv = document.getElementById('krupiyer-el');
     const skorDiv = document.getElementById('krupiyer-skor');
+
     elDiv.innerHTML = '';
+    elDiv.style.cssText = `
+        position: relative;
+        height: 120px;
+        width: ${krupiyer.el.length * 22 + 84}px;
+        display: flex;
+        justify-content: center;
+    `;
 
-    krupiyer.el.forEach(k => elDiv.appendChild(kartEleman(k)));
+    krupiyer.el.forEach((k, i) => elDiv.appendChild(kartEleman(k, i)));
 
-    // Kapalı kart varsa skor gizlenir (C'deki gizle değişkeni)
     const kapaliKartVar = krupiyer.el.some(k => k.kapali);
-    if (kapaliKartVar) {
-        skorDiv.textContent = `Skor: ?`;
-    } else {
-        skorDiv.textContent = `Skor: ${elDegeriHesapla(krupiyer.el)}`;
-    }
+    skorDiv.textContent = kapaliKartVar ? 'Skor: ?' : `Skor: ${elDegeriHesapla(krupiyer.el)}`;
 }
 
 // ============================================================
@@ -504,7 +531,7 @@ function butonlariGuncelle() {
     if (mevcutDurum === STATE.OYUNCU_EKLE) {
         // Başlat butonu görünsün
         document.getElementById('baslat-btn').style.display = 'block';
-        document.getElementById('bilgi-yazisi').textContent = 'Masaya oturmak için koltuklara tıklayın.';
+        document.getElementById('bilgi-yazisi').textContent = 'Bahis koymak için başlat\'a basın.';
 
     } else if (mevcutDurum === STATE.BAHIS) {
         // Sadece sıradaki oyuncunun koltuguna bahis butonları ekle
@@ -608,15 +635,6 @@ function masadanKalk() {
 // ============================================================
 // KOLTUK TIKLAMA & BAŞLAT
 // ============================================================
-
-// Koltuk tıklama
-document.querySelectorAll('.koltuk').forEach(koltukDiv => {
-    koltukDiv.addEventListener('click', () => {
-        if (mevcutDurum !== 'oyuncu_ekle') return;
-        const i = parseInt(koltukDiv.dataset.index);
-        sunucuyaGonder({ tip: 'koltuğa_otur', koltukIndex: i });
-    });
-});
 
 document.getElementById('baslat-btn').addEventListener('click', () => {
     if (mevcutDurum === 'oyuncu_ekle') {
