@@ -231,6 +231,12 @@ function sonrakiOyuncuyaGec() {
     do { siradakiOyuncu++; }
     while (siradakiOyuncu < 5 && !oyuncular[siradakiOyuncu].isActive);
 
+    while (oyunDurumu.siradakiOyuncu < 5 &&
+           oyunDurumu.oyuncular[oyunDurumu.siradakiOyuncu]?.isActive &&
+           oyunDurumu.oyuncular[oyunDurumu.siradakiOyuncu]?.value >= 21) {
+        oyunDurumu.siradakiOyuncu++;
+    }
+    
     if (siradakiOyuncu >= 5) {
         durumDegistir(STATE.KASA_TURU);
     }
@@ -287,6 +293,19 @@ function kartDagit() {
     }
 
     durumDegistir(STATE.OYUNCU_TURU);
+
+    // 21 ile başlayan oyuncuları atla
+    while (oyunDurumu.siradakiOyuncu < 5 &&
+        oyunDurumu.oyuncular[oyunDurumu.siradakiOyuncu]?.isActive &&
+        oyunDurumu.oyuncular[oyunDurumu.siradakiOyuncu]?.value >= 21) {
+        oyunDurumu.siradakiOyuncu++;
+    }
+
+    // Hepsi 21 ise direkt kasa turuna geç
+    if (oyunDurumu.siradakiOyuncu >= 5) {
+        kasaTuruyuBaslat(oyunDurumu, oda);
+        return;
+}
 }
 
 // C'de: case STATE_KASA_TURU
