@@ -94,21 +94,41 @@ function elDegeriHesapla(el) {
     return toplam;
 }
 
-function kazananHesapla(oyuncu, kasaPuan) {
-    function elSonucu(elPuan, bahis) {
-        if (elPuan > 21)        return { sonuc: 'BATTINIZ',    kazanc: 0 };
-        if (kasaPuan > 21)      return { sonuc: 'KAZANDINIZ!', kazanc: bahis * 2 };
-        if (elPuan > kasaPuan)  return { sonuc: 'KAZANDINIZ!', kazanc: bahis * 2 };
-        if (elPuan === kasaPuan)return { sonuc: 'BERABERE',    kazanc: bahis };
-        return                         { sonuc: 'KAYBETTİNİZ', kazanc: 0 };
+function kazananHesapla(oyuncu, kasaPuan, kasaEl) {
+    function blackjackMi(el) {
+        if (el.length !== 2) return false;
+        const degerler = el.map(k => k.deger);
+        return degerler.includes('A') && 
+               degerler.some(d => ['10','J','Q','K'].includes(d));
     }
 
-    const ana = elSonucu(oyuncu.value, oyuncu.bahis);
+    function elSonucu(elPuan, el, bahis) {
+        const oyuncuBlackjack = blackjackMi(el);
+        const kasaBlackjack = blackjackMi(kasaEl);
+
+        if (oyuncuBlackjack && kasaBlackjack) 
+            return { sonuc: 'BERABERE', kazanc: bahis };
+        if (oyuncuBlackjack) 
+            return { sonuc: 'BLACKJACK! 🎉', kazanc: Math.floor(bahis * 2.5) };
+        if (elPuan > 21)        
+            return { sonuc: 'BATTINIZ', kazanc: 0 };
+        if (kasaBlackjack)      
+            return { sonuc: 'KAYBETTİNİZ', kazanc: 0 };
+        if (kasaPuan > 21)      
+            return { sonuc: 'KAZANDINIZ!', kazanc: bahis * 2 };
+        if (elPuan > kasaPuan)  
+            return { sonuc: 'KAZANDINIZ!', kazanc: bahis * 2 };
+        if (elPuan === kasaPuan)
+            return { sonuc: 'BERABERE', kazanc: bahis };
+        return { sonuc: 'KAYBETTİNİZ', kazanc: 0 };
+    }
+
+    const ana = elSonucu(oyuncu.value, oyuncu.el, oyuncu.bahis);
     oyuncu.sonuc = ana.sonuc;
     oyuncu.bakiye += ana.kazanc;
 
     if (oyuncu.isSplitted) {
-        const split = elSonucu(oyuncu.splitValue, oyuncu.bahis);
+        const split = elSonucu(oyuncu.splitValue, oyuncu.splitEl, oyuncu.bahis);
         oyuncu.splitsonuc = split.sonuc;
         oyuncu.bakiye += split.kazanc;
     }
@@ -178,7 +198,7 @@ function kasaTuruyuBaslat(oyunDurumu, oda) {
             oyunDurumu.mevcutDurum = 'sonuc';
             for (let oyuncu of oyunDurumu.oyuncular) {
                 if (oyuncu.isActive) {
-                    kazananHesapla(oyuncu, oyunDurumu.krupiyer.value);
+                    kazananHesapla(oyuncu, oyunDurumu.krupiyer.value, oyunDurumu.krupiyer.el);
                 }
             }
             odayaYayinla(oda, { tip: 'oyun_durumu', durum: oyunDurumu });
@@ -485,16 +505,37 @@ wss.on('connection', (socket) => {
 
     // Oyuncu bağlantısı kesilince
     socket.on('close', () => {
-        console.log('Oyuncu ayrıldı');
-        if (!oyuncuOdaId) return;
-        const oda = odalar.get(oyuncuOdaId);
-        if (!oda) return;
-        oda.oyuncular = oda.oyuncular.filter(s => s !== socket);
-        if (oda.oyuncular.length === 0) {
-            odalar.delete(oyuncuOdaId);
-            console.log('Oda silindi:', oyuncuOdaId);
+    console.log('Oyuncu ayrıldı');
+    if (!oyuncuOdaId) return;
+    const oda = odalar.get(oyuncuOdaId);
+    if (!oda) return;
+
+    // Koltugu bosalt
+    if (oyuncuIndex !== null && oda.oyunDurumu) {
+        const ayrilanOyuncu = oda.oyunDurumu.oyuncular[oyuncuIndex];
+        if (ayrilanOyuncu) {
+            ayrilanOyuncu.isActive = false;
+            ayrilanOyuncu.el = [];
+            ayrilanOyuncu.bahis = 0;
+            ayrilanOyuncu.value = 0;
         }
-    });
+
+        // Sırası gelen oyuncu ayrıldıysa sonraki oyuncuya geç
+        if (oda.oyunDurumu.mevcutDurum === 'oyuncu_turu' && 
+            oda.oyunDurumu.siradakiOyuncu === oyuncuIndex) {
+            sonrakiOyuncuyaGec(oda.oyunDurumu, oda);
+        }
+
+        odayaYayinla(oda, { tip: 'oyun_durumu', durum: oda.oyunDurumu });
+    }
+
+    // Socketi odadan cikar
+    oda.oyuncular = oda.oyuncular.filter(s => s !== socket);
+    if (oda.oyuncular.length === 0) {
+        odalar.delete(oyuncuOdaId);
+        console.log('Oda silindi:', oyuncuOdaId);
+    }
+});
 });
 
 // Odadaki herkese mesaj gönder

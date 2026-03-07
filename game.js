@@ -27,12 +27,11 @@ socket.onmessage = (event) => {
             break;
 
         case 'oyun_durumu':
-            // Sunucudan gelen state'i al, ekranı güncelle
-            // C'deki global değişkenlerin güncellenmesi gibi
             mevcutDurum = veri.durum.mevcutDurum;
             oyuncular = veri.durum.oyuncular;
             krupiyer = veri.durum.krupiyer;
             siradakiOyuncu = veri.durum.siradakiOyuncu;
+            console.log('State güncellendi:', mevcutDurum, siradakiOyuncu); // debug
             ekraniGuncelle();
             break;
 
@@ -376,14 +375,17 @@ function koltukEkle() {
         const oyuncu = oyuncular[i];
         const koltukDiv = document.getElementById(`koltuk-${i}`);
 
-        // Daire görünümü (dolu/boş)
-        const daireDiv = koltukDiv.querySelector('.koltuk-daire');
-        if (oyuncu.isActive) {
-            koltukDiv.classList.add('dolu');
-            daireDiv.textContent = `P${i+1}`;
+        // Sıra göstergesi
+        if (mevcutDurum === 'oyuncu_turu' && i === siradakiOyuncu) {
+            koltukDiv.classList.add('sirada');
         } else {
-            koltukDiv.classList.remove('dolu');
-            daireDiv.textContent = '+';
+            koltukDiv.classList.remove('sirada');
+        }
+
+        // Daire
+        const daireDiv = koltukDiv.querySelector('.koltuk-daire');
+        if (daireDiv) {
+            daireDiv.textContent = oyuncu.isActive ? `P${i+1}` : '';
         }
 
         // Oyuncu bilgileri
