@@ -8,6 +8,25 @@ const socket = new WebSocket(
         : 'wss://webblackjack.onrender.com'
 );
 
+// Lobi butonları
+document.getElementById('oda-olustur-btn').addEventListener('click', () => {
+    sunucuyaGonder({ tip: 'oda_olustur' });
+});
+
+document.getElementById('oda-gir-btn').addEventListener('click', () => {
+    const kod = document.getElementById('oda-kod-input').value.toUpperCase().trim();
+    if (kod.length !== 6) {
+        document.getElementById('lobi-bilgi').textContent = 'Geçersiz kod!';
+        return;
+    }
+    sunucuyaGonder({ tip: 'odaya_katil', odaId: kod });
+});
+
+// Enter ile de girilebilsin
+document.getElementById('oda-kod-input').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') document.getElementById('oda-gir-btn').click();
+});
+
 // ============================================================
 // SES SİSTEMİ (C'deki InitAudioDevice() karşılığı)
 // ============================================================
@@ -51,6 +70,27 @@ socket.onmessage = (event) => {
     const veri = JSON.parse(event.data);
 
     switch (veri.tip) {
+        case 'oda_olusturuldu':
+            benimIndex = veri.oyuncuIndex;
+            odaId = veri.odaId;
+            document.getElementById('lobi-bilgi').textContent = veri.odaId;
+            document.getElementById('lobi-bilgi').style.color = '#ffd700';
+            // 1.5 saniye sonra lobiden çık
+            setTimeout(() => {
+                document.getElementById('lobi').style.display = 'none';
+            }, 1500);
+            break;
+
+        case 'baglan':
+            benimIndex = veri.oyuncuIndex;
+            odaId = veri.odaId;
+            document.getElementById('lobi').style.display = 'none';
+            break;
+
+        case 'hata':
+            document.getElementById('lobi-bilgi').textContent = veri.mesaj;
+            document.getElementById('lobi-bilgi').style.color = '#ff4444';
+            break;
         case 'baglan':
             benimIndex = veri.oyuncuIndex;
             console.log('Oyuncu indexim:', benimIndex);
