@@ -470,8 +470,6 @@ function kartEleman(kart, index = 0) {
     const x = sutun * KART_GENISLIK;
     const y = satir * KART_YUKSEKLIK;
 
-    const aci = 15;
-    // Üst üste binme için absolute pozisyon
     div.style.cssText = `
         width: ${KART_GENISLIK}px;
         height: ${KART_YUKSEKLIK}px;
@@ -481,17 +479,14 @@ function kartEleman(kart, index = 0) {
         border-radius: 6px;
         box-shadow: 2px 2px 5px rgba(0,0,0,0.5);
         position: absolute;
-        left: ${index * 22}px;
-        top: ${Math.abs(aci) * 1.5}px;
-        transform: rotate(${aci}deg);
-        transform-origin: bottom center;
-        transition: transform 0.2s ease;
+        left: ${index * 25}px;
+        top: ${index * -8}px;
         z-index: ${index};
+        transition: all 0.2s ease;
     `;
 
     return div;
 }
-
 function kartElemanDuz(kart, index = 0) {
     const div = document.createElement('div');
     div.className = `kart ${kart.simge}`;
