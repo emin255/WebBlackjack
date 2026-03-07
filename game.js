@@ -78,7 +78,7 @@ socket.onmessage = (event) => {
             // 3 saniye bekle, kopyalayabilsin
             setTimeout(() => {
                 document.getElementById('lobi').style.display = 'none';
-                // Oda kodunu sol üstte göster
+                ekraniGuncelle(); 
                 const kodDiv = document.createElement('div');
                 kodDiv.id = 'oda-kodu-gosterge';
                 kodDiv.textContent = `Oda: ${veri.odaId}`;
@@ -106,7 +106,9 @@ socket.onmessage = (event) => {
             break;
         case 'baglan':
             benimIndex = veri.oyuncuIndex;
-            console.log('Oyuncu indexim:', benimIndex);
+            odaId = veri.odaId;
+            document.getElementById('lobi').style.display = 'none';
+            ekraniGuncelle();
             break;
 
         case 'oyun_durumu':
