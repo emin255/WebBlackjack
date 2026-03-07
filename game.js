@@ -75,11 +75,17 @@ socket.onmessage = (event) => {
             odaId = veri.odaId;
             document.getElementById('lobi-bilgi').textContent = veri.odaId;
             document.getElementById('lobi-bilgi').style.color = '#ffd700';
-            // 1.5 saniye sonra lobiden çık
+            // 3 saniye bekle, kopyalayabilsin
             setTimeout(() => {
                 document.getElementById('lobi').style.display = 'none';
-            }, 1500);
+                // Oda kodunu sol üstte göster
+                const kodDiv = document.createElement('div');
+                kodDiv.id = 'oda-kodu-gosterge';
+                kodDiv.textContent = `Oda: ${veri.odaId}`;
+                document.body.appendChild(kodDiv);
+            }, 3000);
             break;
+
 
         case 'baglan':
             benimIndex = veri.oyuncuIndex;
