@@ -82,6 +82,34 @@ body {
     background: #4a9e4a;
 }
 
+.koltuk-daire {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: #8B1a1a;
+    border: 3px solid #cc4444;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 12px;
+    color: white;
+    font-weight: bold;
+    transition: all 0.3s;
+}
+
+/* Sıradaki oyuncunun koltuğu parlasın */
+.koltuk.sirada .koltuk-daire {
+    background: #ffd700;
+    border-color: #ffaa00;
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+    animation: nabiz 1s infinite alternate;
+}
+
+@keyframes nabiz {
+    from { box-shadow: 0 0 10px rgba(255, 215, 0, 0.6); }
+    to   { box-shadow: 0 0 30px rgba(255, 215, 0, 1); }
+}
+
 .koltuk.dolu .koltuk-daire {
     background: #8B1a1a;
     border-color: #cc4444;
