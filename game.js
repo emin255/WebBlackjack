@@ -83,6 +83,13 @@ socket.onmessage = (event) => {
                 kodDiv.id = 'oda-kodu-gosterge';
                 kodDiv.textContent = `Oda: ${veri.odaId}`;
                 document.body.appendChild(kodDiv);
+                kodDiv.addEventListener('click', () => {
+                navigator.clipboard.writeText(veri.odaId);
+                kodDiv.textContent = `Kopyalandı! ✓`;
+                setTimeout(() => {
+                    kodDiv.textContent = `Oda: ${veri.odaId}`;
+                }, 1500);
+            });
             }, 3000);
             break;
 
