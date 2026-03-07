@@ -62,8 +62,6 @@ let odaId = 'oda1';      // Şimdilik sabit, sonra dinamik yapabiliriz
 
 socket.onopen = () => {
     console.log('Sunucuya bağlandı!');
-    // Odaya katıl
-    sunucuyaGonder({ tip: 'odaya_katil', odaId: odaId });
 };
 
 socket.onmessage = (event) => {
