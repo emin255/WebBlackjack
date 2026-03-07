@@ -470,10 +470,7 @@ function kartEleman(kart, index = 0) {
     const x = sutun * KART_GENISLIK;
     const y = satir * KART_YUKSEKLIK;
 
-    // Her karta hafif rastgele açı ver
-    const aciler = [-8, -4, -6, 3, 6, -2, 5, -7, 4, -3];
-    const aci = aciler[index % aciler.length];
-
+    const aci = 15;
     // Üst üste binme için absolute pozisyon
     div.style.cssText = `
         width: ${KART_GENISLIK}px;
@@ -489,6 +486,51 @@ function kartEleman(kart, index = 0) {
         transform: rotate(${aci}deg);
         transform-origin: bottom center;
         transition: transform 0.2s ease;
+        z-index: ${index};
+    `;
+
+    return div;
+}
+
+function kartElemanDuz(kart, index = 0) {
+    const div = document.createElement('div');
+    div.className = `kart ${kart.simge}`;
+
+    const KART_GENISLIK = 84;
+    const KART_YUKSEKLIK = 120;
+
+    const sutunMap = {
+        'A':0, '2':1, '3':2, '4':3, '5':4, '6':5, '7':6,
+        '8':7, '9':8, '10':9, 'J':10, 'Q':11, 'K':12
+    };
+    const satirMap = {
+        'kupa': 0, 'karo': 1, 'sinek': 2, 'maça': 3
+    };
+
+    let sutun, satir;
+    if (kart.kapali) {
+        sutun = 13;
+        satir = 3;
+    } else {
+        sutun = sutunMap[kart.deger];
+        satir = satirMap[kart.simge];
+    }
+
+    const x = sutun * KART_GENISLIK;
+    const y = satir * KART_YUKSEKLIK;
+
+    div.style.cssText = `
+        width: ${KART_GENISLIK}px;
+        height: ${KART_YUKSEKLIK}px;
+        background-image: url('cards.png');
+        background-position: -${x}px -${y}px;
+        background-repeat: no-repeat;
+        border-radius: 6px;
+        box-shadow: 2px 2px 5px rgba(0,0,0,0.5);
+        position: absolute;
+        left: ${index * 30}px;
+        top: 0px;
+        transform: rotate(0deg);
         z-index: ${index};
     `;
 
@@ -512,7 +554,7 @@ function krupiyerGuncelle() {
         justify-content: center;
     `;
 
-    krupiyer.el.forEach((k, i) => elDiv.appendChild(kartEleman(k, i)));
+    krupiyer.el.forEach((k, i) => elDiv.appendChild(kartElemanDuz(k, i)));
 
     const kapaliKartVar = krupiyer.el.some(k => k.kapali);
     skorDiv.textContent = kapaliKartVar ? 'Skor: ?' : `Skor: ${elDegeriHesapla(krupiyer.el)}`;
