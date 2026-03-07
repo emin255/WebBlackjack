@@ -213,18 +213,10 @@ wss.on('connection', (socket) => {
 
                 const oda = odalar.get(odaId);
 
-                // 5'ten fazla oyuncu giremez
-                if (oda.oyuncular.length >= 5) {
-                    socket.send(JSON.stringify({ tip: 'hata', mesaj: 'Oda dolu!' }));
-                    return;
-                }
-
-                // Oyun durumu yoksa oluştur
                 if (!oda.oyunDurumu) {
                     oda.oyunDurumu = yeniOyunDurumu();
                     oda.oyunDurumu.deste = desteOlusturVeKaristir();
 
-                    // 5 koltuk oluştur
                     for (let i = 0; i < 5; i++) {
                         oda.oyunDurumu.oyuncular.push({
                             index: i,
@@ -243,9 +235,18 @@ wss.on('connection', (socket) => {
                     }
                 }
 
-                // Oyuncuya index ata
+                // Oda dolu mu?
+                if (oda.oyuncular.length >= 5) {
+                    socket.send(JSON.stringify({ tip: 'hata', mesaj: 'Oda dolu!' }));
+                    return;
+                }
+
+                // Koltuk indexi = bağlanma sırası (HashMap mantığı)
                 oyuncuIndex = oda.oyuncular.length;
                 oda.oyuncular.push(socket);
+
+                // Otomatik koltuğa otur
+                oda.oyunDurumu.oyuncular[oyuncuIndex].isActive = true;
 
                 socket.send(JSON.stringify({
                     tip: 'baglan',
@@ -293,6 +294,9 @@ wss.on('connection', (socket) => {
                 const oda = odalar.get(oyuncuOdaId);
                 if (!oda) return;
                 const durum = oda.oyunDurumu;
+
+                if (oyuncuIndex !== oda.oyunDurumu.siradakiOyuncu) return;
+
                 const oyuncu = durum.oyuncular[durum.siradakiOyuncu];
 
                 if (oyuncu.bahis + veri.miktar <= oyuncu.bakiye) {
@@ -306,6 +310,10 @@ wss.on('connection', (socket) => {
                 const oda = odalar.get(oyuncuOdaId);
                 if (!oda) return;
                 oda.oyunDurumu.oyuncular[oda.oyunDurumu.siradakiOyuncu].bahis = 0;
+
+                //Sıra kontrolü
+                if (oyuncuIndex !== oda.oyunDurumu.siradakiOyuncu) return;
+
                 odayaYayinla(oda, { tip: 'oyun_durumu', durum: oda.oyunDurumu });
                 break;
             }
@@ -314,6 +322,10 @@ wss.on('connection', (socket) => {
                 const oda = odalar.get(oyuncuOdaId);
                 if (!oda) return;
                 const durum = oda.oyunDurumu;
+
+                //Sıra kontrolü
+                if (oyuncuIndex !== oda.oyunDurumu.siradakiOyuncu) return;
+
                 const oyuncu = durum.oyuncular[durum.siradakiOyuncu];
 
                 if (oyuncu.bahis === 0) return;
@@ -337,7 +349,11 @@ wss.on('connection', (socket) => {
                 const oda = odalar.get(oyuncuOdaId);
                 if (!oda) return;
                 const durum = oda.oyunDurumu;
+                //Sıra kontrolü
+                if (oyuncuIndex !== oda.oyunDurumu.siradakiOyuncu) return;
+
                 const oyuncu = durum.oyuncular[durum.siradakiOyuncu];
+                
                 const aktifEl = oyuncu.isSplitted && oyuncu.sirasplittemi === 1
                     ? oyuncu.splitEl : oyuncu.el;
 
@@ -368,6 +384,10 @@ wss.on('connection', (socket) => {
                 const oda = odalar.get(oyuncuOdaId);
                 if (!oda) return;
                 const durum = oda.oyunDurumu;
+
+                //Sıra kontrolü
+                if (oyuncuIndex !== oda.oyunDurumu.siradakiOyuncu) return;
+
                 const oyuncu = durum.oyuncular[durum.siradakiOyuncu];
 
                 if (oyuncu.isSplitted && oyuncu.sirasplittemi === 0) {
@@ -384,6 +404,10 @@ wss.on('connection', (socket) => {
                 const oda = odalar.get(oyuncuOdaId);
                 if (!oda) return;
                 const durum = oda.oyunDurumu;
+
+                //Sıra kontrolü
+                if (oyuncuIndex !== oda.oyunDurumu.siradakiOyuncu) return;
+
                 const oyuncu = durum.oyuncular[durum.siradakiOyuncu];
 
                 if (oyuncu.bakiye < oyuncu.bahis) return;
@@ -408,6 +432,10 @@ wss.on('connection', (socket) => {
                 const oda = odalar.get(oyuncuOdaId);
                 if (!oda) return;
                 const durum = oda.oyunDurumu;
+
+                //Sıra kontrolü
+                if (oyuncuIndex !== oda.oyunDurumu.siradakiOyuncu) return;
+
                 const oyuncu = durum.oyuncular[durum.siradakiOyuncu];
 
                 if (oyuncu.bakiye < oyuncu.bahis) return;
