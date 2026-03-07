@@ -16,9 +16,6 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(rootDir, 'index.html'));
 });
 
-// ============================================================
-// OYUN ODASI YÖNETİMİ
-// ============================================================
 
 // Her bağlanan oyuncu bir socket — C'deki oyuncular[5] gibi
 const odalar = new Map(); // oda_id → oda objesi

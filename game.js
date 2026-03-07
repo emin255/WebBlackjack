@@ -5,7 +5,7 @@
 const socket = new WebSocket(
     window.location.hostname === 'localhost'
         ? 'ws://localhost:3000'
-        : 'wss://webblackjack-production.up.railway.app'
+        : 'wss://webblackjack.onrender.com'
 );
 
 let benimIndex = null;   // Bu tarayıcının oyuncu indexi
