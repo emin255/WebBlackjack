@@ -57,28 +57,26 @@ socket.onmessage = (event) => {
             break;
 
         case 'oyun_durumu':
-        const eskiDurum = mevcutDurum;
-        const eskiKartSayisi = oyuncular.reduce((t, o) => t + (o.el?.length || 0), 0);
+            const eskiDurum = mevcutDurum;
+            const eskiKartSayisi = oyuncular.reduce((t, o) => t + (o.el?.length || 0), 0);
+            const eskiKrupiyerKarti = krupiyer.el?.length || 0;
 
-        mevcutDurum = veri.durum.mevcutDurum;
-        oyuncular = veri.durum.oyuncular;
-        krupiyer = veri.durum.krupiyer;
-        siradakiOyuncu = veri.durum.siradakiOyuncu;
+            mevcutDurum = veri.durum.mevcutDurum;
+            oyuncular = veri.durum.oyuncular;
+            krupiyer = veri.durum.krupiyer;
+            siradakiOyuncu = veri.durum.siradakiOyuncu;
 
-        // Yeni kart gelince ses çal
-        const yeniKartSayisi = oyuncular.reduce((t, o) => t + (o.el?.length || 0), 0);
-        if (yeniKartSayisi > eskiKartSayisi) {
-            sesOyna('kartCek');
-        }
-
-        // Kart dağıtılınca karıştırma sesi
-        if (eskiDurum === 'bahis' && mevcutDurum === 'oyuncu_turu') {
+            // Kart sesi (oyuncu veya krupiyer)
+            const yeniKartSayisi = oyuncular.reduce((t, o) => t + (o.el?.length || 0), 0);
+            const yeniKrupiyerKarti = krupiyer.el?.length || 0;
+            if (yeniKartSayisi > eskiKartSayisi || yeniKrupiyerKarti > eskiKrupiyerKarti) {
+                sesOyna('kartCek');
+            }
+            ekraniGuncelle();
+            break;
+        case 'deste_karistirildi':
             sesOyna('karistir');
-        }
-
-        ekraniGuncelle();
-        break;
-
+            break;
         case 'hata':
             alert(veri.mesaj);
             break;

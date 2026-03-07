@@ -20,6 +20,15 @@ app.get('/', (req, res) => {
 // Her bağlanan oyuncu bir socket — C'deki oyuncular[5] gibi
 const odalar = new Map(); // oda_id → oda objesi
 
+function odaKoduUret() {
+    const karakterler = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    let kod = '';
+    for (let i = 0; i < 6; i++) {
+        kod += karakterler[Math.floor(Math.random() * karakterler.length)];
+    }
+    return kod;
+}
+
 function yeniOda(odaId) {
     return {
         id: odaId,
@@ -70,9 +79,11 @@ function kartCek(oyunDurumu) {
     if (oyunDurumu.desteIndex > oyunDurumu.deste.length - 20) {
         oyunDurumu.deste = desteOlusturVeKaristir();
         oyunDurumu.desteIndex = 0;
+        oyunDurumu.desteKaristirildi = true; // Bayrak ekle
     }
     return { ...oyunDurumu.deste[oyunDurumu.desteIndex++] };
 }
+
 
 // ============================================================
 // PUANLAMA (game.js'den taşındı)
@@ -180,6 +191,10 @@ function kasaTuruyuBaslat(oyunDurumu, oda) {
     oyunDurumu.mevcutDurum = 'kasa_turu';
     oyunDurumu.krupiyer.el.forEach(k => k.kapali = false);
     oyunDurumu.krupiyer.value = elDegeriHesapla(oyunDurumu.krupiyer.el);
+    if (oyunDurumu.desteKaristirildi) {
+        odayaYayinla(oda, { tip: 'deste_karistirildi' });
+        oyunDurumu.desteKaristirildi = false;
+    }
     odayaYayinla(oda, { tip: 'oyun_durumu', durum: oyunDurumu });
 
     // Kasa 17'nin altındaysa kart çekmeye devam et
@@ -220,52 +235,71 @@ wss.on('connection', (socket) => {
         const veri = JSON.parse(mesaj);
         console.log('Mesaj:', veri.tip);
 
-        switch (veri.tip) {
+        switch (veri.tip) { 
+            case 'oda_olustur': {   
+                // Benzersiz kod üret
+                let yeniKod;
+                do { yeniKod = odaKoduUret(); }
+                while (odalar.has(yeniKod));
+
+                // Yeni oda oluştur
+                const yeniOda2 = yeniOda(yeniKod);
+                yeniOda2.oyunDurumu = yeniOyunDurumu();
+                yeniOda2.oyunDurumu.deste = desteOlusturVeKaristir();
+
+                for (let i = 0; i < 5; i++) {
+                    yeniOda2.oyunDurumu.oyuncular.push({
+                        index: i,
+                        isActive: false,
+                        bakiye: 1000,
+                        bahis: 0,
+                        el: [],
+                        splitEl: [],
+                        value: 0,
+                        splitValue: 0,
+                        isSplitted: false,
+                        sirasplittemi: 0,
+                        sonuc: '',
+                        splitsonuc: ''
+                    });
+                }
+
+                odalar.set(yeniKod, yeniOda2);
+                oyuncuOdaId = yeniKod;
+
+                // İlk oyuncu olarak ekle
+                oyuncuIndex = 0;
+                yeniOda2.oyuncular.push(socket);
+                yeniOda2.oyunDurumu.oyuncular[0].isActive = true;
+
+                socket.send(JSON.stringify({
+                    tip: 'oda_olusturuldu',
+                    odaId: yeniKod,
+                    oyuncuIndex: 0
+                }));
+                break;
+            }
 
             // Odaya katıl veya oluştur
             case 'odaya_katil': {
-                const odaId = veri.odaId || 'oda1';
-                oyuncuOdaId = odaId;
-
+                const odaId = veri.odaId;
+    
+                // Oda var mı kontrol et
                 if (!odalar.has(odaId)) {
-                    odalar.set(odaId, yeniOda(odaId));
+                    socket.send(JSON.stringify({ tip: 'hata', mesaj: 'Oda bulunamadı!' }));
+                    return;
                 }
 
                 const oda = odalar.get(odaId);
+                oyuncuOdaId = odaId;
 
-                if (!oda.oyunDurumu) {
-                    oda.oyunDurumu = yeniOyunDurumu();
-                    oda.oyunDurumu.deste = desteOlusturVeKaristir();
-
-                    for (let i = 0; i < 5; i++) {
-                        oda.oyunDurumu.oyuncular.push({
-                            index: i,
-                            isActive: false,
-                            bakiye: 1000,
-                            bahis: 0,
-                            el: [],
-                            splitEl: [],
-                            value: 0,
-                            splitValue: 0,
-                            isSplitted: false,
-                            sirasplittemi: 0,
-                            sonuc: '',
-                            splitsonuc: ''
-                        });
-                    }
-                }
-
-                // Oda dolu mu?
                 if (oda.oyuncular.length >= 5) {
                     socket.send(JSON.stringify({ tip: 'hata', mesaj: 'Oda dolu!' }));
                     return;
                 }
 
-                // Koltuk indexi = bağlanma sırası (HashMap mantığı)
                 oyuncuIndex = oda.oyuncular.length;
                 oda.oyuncular.push(socket);
-
-                // Otomatik koltuğa otur
                 oda.oyunDurumu.oyuncular[oyuncuIndex].isActive = true;
 
                 socket.send(JSON.stringify({
@@ -360,8 +394,12 @@ wss.on('connection', (socket) => {
                 } else {
                     durum.mevcutDurum = 'bahis';
                 }
+
+                if (durum.desteKaristirildi) {
+                    odayaYayinla(oda, { tip: 'deste_karistirildi' });
+                    durum.desteKaristirildi = false;
+                }
                 odayaYayinla(oda, { tip: 'oyun_durumu', durum });
-                break;
             }
 
             // Oyuncu hareketleri
