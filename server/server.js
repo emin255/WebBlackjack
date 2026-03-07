@@ -588,6 +588,12 @@ function odayaYayinla(oda, veri) {
 
 const PORT = process.env.PORT || 3000;
 
+// Render uyku modunu engelle
+setInterval(() => {
+    fetch('https://webblackjack.onrender.com')
+        .catch(() => {});
+}, 10 * 60 * 1000);
+
 server.listen(PORT, () => {
     console.log(`Sunucu çalışıyor: http://localhost:${PORT}`);
 });
