@@ -8,6 +8,36 @@ const socket = new WebSocket(
         : 'wss://webblackjack.onrender.com'
 );
 
+// ============================================================
+// SES SİSTEMİ (C'deki InitAudioDevice() karşılığı)
+// ============================================================
+
+const sesler = {
+    kartCek: new Audio('ses.ogg'),
+    karistir: new Audio('karistirma.ogg'),
+    arkaplan: new Audio('arkaplan.ogg')
+};
+
+// Arka plan müziği döngüye al
+sesler.arkaplan.loop = true;
+sesler.arkaplan.volume = 0.4;
+
+// Tarayıcı otomatik ses çalmayı engelliyor
+// İlk tıklamada başlat
+document.addEventListener('click', () => {
+    if (sesler.arkaplan.paused) {
+        sesler.arkaplan.play().catch(() => {});
+    }
+}, { once: true });
+
+function sesOyna(tip) {
+    try {
+        const ses = sesler[tip];
+        ses.currentTime = 0; // Başa sar
+        ses.play().catch(() => {});
+    } catch(e) {}
+}
+
 let benimIndex = null;   // Bu tarayıcının oyuncu indexi
 let odaId = 'oda1';      // Şimdilik sabit, sonra dinamik yapabiliriz
 
@@ -27,13 +57,27 @@ socket.onmessage = (event) => {
             break;
 
         case 'oyun_durumu':
-            mevcutDurum = veri.durum.mevcutDurum;
-            oyuncular = veri.durum.oyuncular;
-            krupiyer = veri.durum.krupiyer;
-            siradakiOyuncu = veri.durum.siradakiOyuncu;
-            console.log('State güncellendi:', mevcutDurum, siradakiOyuncu); // debug
-            ekraniGuncelle();
-            break;
+        const eskiDurum = mevcutDurum;
+        const eskiKartSayisi = oyuncular.reduce((t, o) => t + (o.el?.length || 0), 0);
+
+        mevcutDurum = veri.durum.mevcutDurum;
+        oyuncular = veri.durum.oyuncular;
+        krupiyer = veri.durum.krupiyer;
+        siradakiOyuncu = veri.durum.siradakiOyuncu;
+
+        // Yeni kart gelince ses çal
+        const yeniKartSayisi = oyuncular.reduce((t, o) => t + (o.el?.length || 0), 0);
+        if (yeniKartSayisi > eskiKartSayisi) {
+            sesOyna('kartCek');
+        }
+
+        // Kart dağıtılınca karıştırma sesi
+        if (eskiDurum === 'bahis' && mevcutDurum === 'oyuncu_turu') {
+            sesOyna('karistir');
+        }
+
+        ekraniGuncelle();
+        break;
 
         case 'hata':
             alert(veri.mesaj);
