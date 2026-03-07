@@ -400,6 +400,7 @@ wss.on('connection', (socket) => {
                     durum.desteKaristirildi = false;
                 }
                 odayaYayinla(oda, { tip: 'oyun_durumu', durum });
+                break;
             }
 
             // Oyuncu hareketleri
